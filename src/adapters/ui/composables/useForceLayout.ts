@@ -127,7 +127,7 @@ export function useForceLayout(options: UseForceLayoutOptions): ForceLayoutApi {
       rebuild(false);
       return;
     }
-    // BUG-05-06: reheat keeps the diverging physics state instead of recentering it.
+    // reheatLayout 会先把偏移的布局平移回视口中心，再拉高冷却系数继续仿真
     layout.value = reheatLayout(current, REHEAT_ALPHA_STRUCTURE);
     startLoop();
   }

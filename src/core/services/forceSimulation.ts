@@ -224,9 +224,9 @@ export function stepLayout(layout: LayoutState, params: LayoutParams): LayoutSta
       continue;
     }
 
-    // BUG-05-06: centering force pushes nodes away from the viewport center.
-    let totalForceX = forceX[i] + (node.x - centerX) * physics.centeringStrength;
-    let totalForceY = forceY[i] + (node.y - centerY) * physics.centeringStrength;
+    // 向心力 F = (center − pos) × centeringStrength，始终把节点拉回视口中心
+    let totalForceX = forceX[i] + (centerX - node.x) * physics.centeringStrength;
+    let totalForceY = forceY[i] + (centerY - node.y) * physics.centeringStrength;
     const forceMagnitude = Math.sqrt(totalForceX * totalForceX + totalForceY * totalForceY);
     if (forceMagnitude > physics.maxForcePerStep) {
       const scale = physics.maxForcePerStep / forceMagnitude;
@@ -283,9 +283,47 @@ export function isLayoutSettled(layout: LayoutState): boolean {
   return layout.settled || layout.alpha <= PHYSICS_CONFIG.alphaMin;
 }
 
-/** 重新加热：保留当前坐标，把 alpha 拉回 1（「重新布局」按钮） */
+/**
+ * 重新加热：先把整张图整体平移回视口中心（保留既有相对布局），
+ * 再把 alpha 拉高。导入备份 / 调整窗口尺寸后回热时，
+ * 图不会停留在偏到一侧的状态（「重新布局」按钮）。
+ */
 export function reheatLayout(layout: LayoutState, heat = REHEAT_ALPHA_FULL): LayoutState {
-  return { ...layout, alpha: clamp(heat, 0, 1), settled: false, tick: 0 };
+  const { width, height } = layout.viewport;
+  if (layout.nodes.length === 0) {
+    return { ...layout, alpha: clamp(heat, 0, 1), settled: false, tick: 0 };
+  }
+
+  // 以当前节点包围盒中心为准做确定性平移，让布局落回画布中央
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const node of layout.nodes) {
+    minX = Math.min(minX, node.x);
+    minY = Math.min(minY, node.y);
+    maxX = Math.max(maxX, node.x);
+    maxY = Math.max(maxY, node.y);
+  }
+  const offsetX = width / 2 - (minX + maxX) / 2;
+  const offsetY = height / 2 - (minY + maxY) / 2;
+
+  const nodes = layout.nodes.map((node) => {
+    const x = node.x + offsetX;
+    const y = node.y + offsetY;
+    // 拖拽固定的节点同步移动固定点；速度清零，避免平移后沿旧惯性再次漂走
+    return {
+      ...node,
+      x,
+      y,
+      vx: 0,
+      vy: 0,
+      fx: node.fx === null ? null : node.fx + offsetX,
+      fy: node.fy === null ? null : node.fy + offsetY
+    };
+  });
+
+  return { ...layout, nodes, alpha: clamp(heat, 0, 1), settled: false, tick: 0 };
 }
 
 /** 拖拽期间固定节点坐标（fx/fy），松手后 releaseNode 释放 */
