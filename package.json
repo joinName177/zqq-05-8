@@ -1,0 +1,21 @@
+{
+  "name": "zqq-05-relationship-topology",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "人际关系拓扑图 - 自研力导向物理仿真 + 疏远预警与关系维护建议的纯前端社交圈可视化系统",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "typescript": "~5.7.2",
+    "vite": "^6.2.0",
+    "vue-tsc": "^2.2.0"
+  }
+}

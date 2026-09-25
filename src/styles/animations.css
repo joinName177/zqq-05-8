@@ -1,0 +1,85 @@
+/* ==========================================================================
+   zqq-05 动画关键帧 / 过渡 / 响应式辅助
+   prefers-reduced-motion 降级写在 main.css
+   ========================================================================== */
+
+/* ---- 动画 ---- */
+@keyframes zqq-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes zqq-pulse-ring {
+  0% {
+    opacity: 0.95;
+    transform: scale(1);
+  }
+  70% {
+    opacity: 0.05;
+    transform: scale(1.28);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.28);
+  }
+}
+
+@keyframes zqq-dash {
+  to {
+    stroke-dashoffset: -48;
+  }
+}
+
+@keyframes zqq-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes zqq-slide-in {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.animate-in {
+  animation: zqq-fade-in var(--transition) both;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--accent);
+  animation: zqq-spin 800ms linear infinite;
+}
+
+/* ---- 响应式辅助 ---- */
+@media (max-width: 1199px) {
+  :root {
+    --drawer-width: 420px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --header-height: 60px;
+    --space-5: 16px;
+  }
+
+  body {
+    font-size: 13.5px;
+  }
+}

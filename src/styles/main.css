@@ -1,0 +1,195 @@
+/* ==========================================================================
+   zqq-05 人际关系拓扑图 —— 样式入口：设计令牌 / reset / 无障碍降级
+   100% 原生 CSS：无 Tailwind / UnoCSS / Sass / Less / CSS-in-JS
+
+   样式被拆成三个职责单一的文件，此处统一 @import（构建时内联）：
+     - components.css  通用原子类 / 组件类 / 动画 / 响应式辅助
+     - graph.css       拓扑图 SVG 视觉（节点 / 连线 / 光晕 / 脉冲 / 画布）
+   ========================================================================== */
+
+@import './components.css';
+@import './graph.css';
+
+
+:root {
+  /* ---- 调色板（深色主题为默认） ---- */
+  --bg: #080c18;
+  --bg-gradient: radial-gradient(1200px 700px at 12% -10%, rgba(124, 140, 255, 0.22), transparent 60%),
+    radial-gradient(900px 600px at 100% 0%, rgba(46, 230, 197, 0.14), transparent 55%),
+    radial-gradient(700px 500px at 50% 110%, rgba(255, 138, 92, 0.1), transparent 60%);
+  --surface: rgba(19, 26, 45, 0.82);
+  --surface-strong: rgba(24, 32, 54, 0.94);
+  --surface-soft: rgba(255, 255, 255, 0.04);
+  --surface-hover: rgba(124, 140, 255, 0.12);
+  --border: rgba(126, 146, 214, 0.2);
+  --border-strong: rgba(126, 146, 214, 0.42);
+  --text: #e8edff;
+  --text-muted: #97a3c4;
+  --text-faint: #6b7794;
+  --accent: #7c8cff;
+  --accent-strong: #6272ff;
+  --accent-soft: rgba(124, 140, 255, 0.16);
+  --accent-2: #2ee6c5;
+  --warn: #f6c34a;
+  --danger: #ff6b81;
+  --success: #3ddc97;
+  --graph-bg: #080c18;
+  --graph-grid: rgba(126, 146, 214, 0.14);
+  --graph-overlay: rgba(8, 12, 24, 0.84);
+
+  /* ---- 形状 / 间距 / 阴影 ---- */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --shadow-sm: 0 2px 8px rgba(3, 6, 18, 0.35);
+  --shadow-md: 0 12px 32px rgba(3, 6, 18, 0.45);
+  --shadow-lg: 0 24px 60px rgba(3, 6, 18, 0.55);
+  --transition-fast: 140ms ease;
+  --transition: 220ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  --font-sans: 'Plus Jakarta Sans', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+
+  /* ---- 布局 ---- */
+  --header-height: 68px;
+  --drawer-width: 460px;
+  --z-drawer: 60;
+  --z-dialog: 80;
+  --z-toast: 100;
+}
+
+[data-theme='light'] {
+  --bg: #f2f4fb;
+  --bg-gradient: radial-gradient(1100px 640px at 8% -12%, rgba(124, 140, 255, 0.24), transparent 60%),
+    radial-gradient(900px 560px at 100% 4%, rgba(46, 197, 178, 0.18), transparent 58%);
+  --surface: rgba(255, 255, 255, 0.88);
+  --surface-strong: #ffffff;
+  --surface-soft: rgba(19, 26, 45, 0.035);
+  --surface-hover: rgba(98, 114, 255, 0.1);
+  --border: rgba(30, 45, 90, 0.14);
+  --border-strong: rgba(30, 45, 90, 0.3);
+  --text: #17203a;
+  --text-muted: #5a678a;
+  --text-faint: #8892ad;
+  --accent: #4f5fe0;
+  --accent-strong: #3b4bd6;
+  --accent-soft: rgba(79, 95, 224, 0.12);
+  --accent-2: #12a894;
+  --warn: #c98a10;
+  --danger: #d94257;
+  --success: #159c68;
+  --graph-bg: #f4f6fc;
+  --graph-grid: rgba(30, 45, 90, 0.1);
+  --graph-overlay: rgba(244, 246, 252, 0.88);
+  --shadow-sm: 0 2px 8px rgba(30, 45, 90, 0.08);
+  --shadow-md: 0 12px 30px rgba(30, 45, 90, 0.12);
+  --shadow-lg: 0 24px 56px rgba(30, 45, 90, 0.16);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  background-color: var(--bg);
+  background-image: var(--bg-gradient);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure {
+  margin: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+/* ---- 滚动条 ---- */
+.scroll-y {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.scroll-y::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scroll-y::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.scroll-y::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+
+/* ---- 无障碍：降低动效 ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

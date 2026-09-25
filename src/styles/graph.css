@@ -1,0 +1,177 @@
+/* ==========================================================================
+   zqq-05 拓扑图 SVG 视觉：画布 / 工具栏 / 节点 / 连线 / 光晕 / 脉冲 / 标签
+   由 styles/main.css 统一 @import，构建时内联。
+   类名统一以 graph__ 前缀，全局唯一，避免与组件作用域样式冲突。
+   ========================================================================== */
+
+/* ---------------------------- 面板与工具栏 ---------------------------- */
+
+.graph__header {
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.graph__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.graph__group {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+}
+
+.graph__select {
+  width: auto;
+  min-width: 150px;
+  padding: 7px 32px 7px 12px;
+  font-size: 12.5px;
+}
+
+/* ------------------------------- 画布 -------------------------------- */
+
+.graph__stage {
+  position: relative;
+  flex: 1;
+  min-height: 460px;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  overflow: hidden;
+  background: var(--graph-bg);
+}
+
+.graph__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 460px;
+  touch-action: none;
+  cursor: grab;
+}
+
+.graph__svg:active {
+  cursor: grabbing;
+}
+
+.graph__bg {
+  fill: transparent;
+}
+
+/* ------------------------------- 连线 -------------------------------- */
+
+.graph__edges line {
+  transition: opacity var(--transition);
+}
+
+.graph__edge--dashed {
+  animation: zqq-dash 2.6s linear infinite;
+}
+
+.graph__edge--dim {
+  opacity: 0.12;
+  transition: opacity var(--transition);
+}
+
+/* ------------------------------- 节点 -------------------------------- */
+
+.graph__node {
+  cursor: pointer;
+  transition: opacity var(--transition);
+}
+
+.graph__node--dim {
+  opacity: 0.16;
+}
+
+/* 核心圈层光晕环 */
+.graph__halo {
+  fill: none;
+  stroke-width: 2.5;
+  stroke: #8b7cff;
+  opacity: 0.75;
+}
+
+/* 疏远预警脉冲虚线环 */
+.graph__pulse {
+  fill: none;
+  stroke: var(--danger);
+  stroke-width: 2;
+  stroke-dasharray: 5 5;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: zqq-pulse-ring var(--pulse-duration, 2.4s) ease-out infinite;
+}
+
+.graph__dot {
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 1.5;
+}
+
+.graph__node--selected .graph__dot {
+  stroke: #fff;
+  stroke-width: 3;
+}
+
+.graph__shine {
+  pointer-events: none;
+}
+
+.graph__label {
+  fill: var(--text);
+  font-weight: 600;
+  paint-order: stroke fill;
+  stroke: var(--graph-bg);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* --------------------------- 加载 / 空态 / 提示 --------------------------- */
+
+.graph__loading,
+.graph__empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  color: var(--text-muted);
+  font-size: 13px;
+  background: var(--graph-overlay);
+}
+
+.graph__hint {
+  position: absolute;
+  left: var(--space-3);
+  bottom: var(--space-3);
+  font-size: 11.5px;
+  color: var(--text-faint);
+  background: var(--graph-overlay);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  margin: 0;
+}
+
+@media (max-width: 767px) {
+  .graph__toolbar {
+    justify-content: flex-start;
+  }
+
+  .graph__stage,
+  .graph__svg {
+    min-height: 360px;
+  }
+
+  .graph__hint {
+    display: none;
+  }
+}

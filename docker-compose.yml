@@ -1,0 +1,9 @@
+services:
+  zqq-05-relationship-topology:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: zqq-05
+    ports:
+      - "8085:80"
+    restart: unless-stopped
