@@ -224,9 +224,9 @@ export function stepLayout(layout: LayoutState, params: LayoutParams): LayoutSta
       continue;
     }
 
-    // BUG-05-06: centering force pushes nodes away from the viewport center.
-    let totalForceX = forceX[i] + (node.x - centerX) * physics.centeringStrength;
-    let totalForceY = forceY[i] + (node.y - centerY) * physics.centeringStrength;
+    // 向心力：F = (center − pos) × centeringStrength，把节点拉回视口中心
+    let totalForceX = forceX[i] + (centerX - node.x) * physics.centeringStrength;
+    let totalForceY = forceY[i] + (centerY - node.y) * physics.centeringStrength;
     const forceMagnitude = Math.sqrt(totalForceX * totalForceX + totalForceY * totalForceY);
     if (forceMagnitude > physics.maxForcePerStep) {
       const scale = physics.maxForcePerStep / forceMagnitude;
@@ -286,6 +286,44 @@ export function isLayoutSettled(layout: LayoutState): boolean {
 /** 重新加热：保留当前坐标，把 alpha 拉回 1（「重新布局」按钮） */
 export function reheatLayout(layout: LayoutState, heat = REHEAT_ALPHA_FULL): LayoutState {
   return { ...layout, alpha: clamp(heat, 0, 1), settled: false, tick: 0 };
+}
+
+/**
+ * 把布局整体平移，使节点质心与视口中心重合（导入备份 / 窗口尺寸变化后回热前调用）。
+ * 同步平移拖拽固定点 fx/fy，并把节点夹回画布边界内，保证回热结束后图不停留在偏移状态。
+ */
+export function recenterLayout(layout: LayoutState): LayoutState {
+  const count = layout.nodes.length;
+  if (count === 0) return layout;
+
+  const { viewport } = layout;
+  const centerX = viewport.width / 2;
+  const centerY = viewport.height / 2;
+  let sumX = 0;
+  let sumY = 0;
+  for (const node of layout.nodes) {
+    sumX += node.x;
+    sumY += node.y;
+  }
+  const dx = centerX - sumX / count;
+  const dy = centerY - sumY / count;
+
+  const nodes = layout.nodes.map((node) => {
+    const margin = node.radius + PHYSICS_CONFIG.boundaryPadding;
+    const minX = Math.min(margin, viewport.width / 2);
+    const maxX = Math.max(viewport.width - margin, viewport.width / 2);
+    const minY = Math.min(margin, viewport.height / 2);
+    const maxY = Math.max(viewport.height - margin, viewport.height / 2);
+    return {
+      ...node,
+      x: clamp(node.x + dx, minX, maxX),
+      y: clamp(node.y + dy, minY, maxY),
+      fx: node.fx === null ? null : clamp(node.fx + dx, minX, maxX),
+      fy: node.fy === null ? null : clamp(node.fy + dy, minY, maxY)
+    };
+  });
+
+  return { ...layout, nodes };
 }
 
 /** 拖拽期间固定节点坐标（fx/fy），松手后 releaseNode 释放 */

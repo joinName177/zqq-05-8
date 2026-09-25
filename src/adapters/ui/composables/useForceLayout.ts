@@ -17,6 +17,7 @@ import {
   isLayoutSettled,
   mergeLayoutPositions,
   pinNode,
+  recenterLayout,
   reheatLayout,
   releaseNode,
   reseedLayout,
@@ -40,7 +41,7 @@ export interface ForceLayoutApi {
   settled: ComputedRef<boolean>;
   setViewport(width: number, height: number): void;
   rebuild(keepPositions?: boolean): void;
-  /** 重新布局并恢复运行 */
+  /** 重新居中并回热继续仿真（导入备份后调用） */
   reheat(): void;
   /** 换种子重排（「重新布局」按钮） */
   reseed(seed: number): void;
@@ -127,8 +128,8 @@ export function useForceLayout(options: UseForceLayoutOptions): ForceLayoutApi {
       rebuild(false);
       return;
     }
-    // BUG-05-06: reheat keeps the diverging physics state instead of recentering it.
-    layout.value = reheatLayout(current, REHEAT_ALPHA_STRUCTURE);
+    // 回热前先把整体布局平移回视口中心，避免导入备份后图停留在偏移状态
+    layout.value = reheatLayout(recenterLayout(current), REHEAT_ALPHA_STRUCTURE);
     startLoop();
   }
 
@@ -149,7 +150,8 @@ export function useForceLayout(options: UseForceLayoutOptions): ForceLayoutApi {
       return;
     }
     layout.value = { ...current, viewport: { width: safeWidth, height: safeHeight } };
-    layout.value = reheatLayout(layout.value, REHEAT_ALPHA_STRUCTURE);
+    // 视口变化后先把布局重新居中（并夹回新边界内），再回热继续仿真
+    layout.value = reheatLayout(recenterLayout(layout.value), REHEAT_ALPHA_STRUCTURE);
     startLoop();
   }
 
